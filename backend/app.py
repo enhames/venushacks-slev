@@ -1,0 +1,1 @@
+# setup flask app, load config, init db, register routes
