@@ -23,8 +23,6 @@ class User(db.Model):
         backref='user',
         lazy=True
     )
-
-
 class Period(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_username = db.Column(db.String(80), db.ForeignKey('user.username'), nullable=False)
