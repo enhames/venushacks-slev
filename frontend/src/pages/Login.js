@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { userLogin } from '../front_end_api/front_login_api';
+import { userLogin, getEverything } from '../front_end_api/front_login_api';
 import {
   StickyHeader,
   NavBar,
@@ -21,7 +21,8 @@ export default function Login() {
   const handleSubmit = async () => {
     try {
       const user = await userLogin(form);
-      localStorage.setItem('user', JSON.stringify(user));
+      const fullUser = await getEverything(user.username);
+      localStorage.setItem('user', JSON.stringify(fullUser));
       navigate('/');
     } catch (err) {
       alert(err.message || "Login failed.");

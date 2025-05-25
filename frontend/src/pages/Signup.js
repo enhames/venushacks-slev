@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { register } from '../front_end_api/front_register_api';
+import { getEverything } from '../front_end_api/front_login_api';
 import {
   StickyHeader,
   NavBar,
@@ -28,7 +29,8 @@ export default function Signup() {
   const handleSubmit = async () => {
     try {
       const user = await register(form);
-      localStorage.setItem('user', JSON.stringify(user));
+      const fullUser = await getEverything(user.username);
+      localStorage.setItem('user', JSON.stringify(fullUser));
       navigate('/');
     } catch (err) {
       alert(err.message || "Signup failed.");
