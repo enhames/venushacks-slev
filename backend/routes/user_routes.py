@@ -101,3 +101,21 @@ def get_last_period():
         }), 200
     else:
         return jsonify({'message': 'No period data found'}), 404
+    
+@user_routes.route('/period', methods=['POST'])
+def submit_period():
+    data = request.get_json()
+    username = data.get('username')
+    
+    if not username:
+        return jsonify({'error': 'Username is required'}), 400
+    
+    user = User.query.filter_by(username=username).first()
+    if not user or not user.has_periods:
+        return jsonify({'error': 'User not found or doesn\'t track periods'})
+    
+    new_period = Period(user_username=username, date=dt.today(), had_period=True)
+    db.session.add(new_period)
+    db.session.commit()
+
+    return jsonify({'message': 'Period logged'}), 201
