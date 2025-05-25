@@ -1,5 +1,6 @@
+from datetime import date as dt
 from flask import Blueprint, request, jsonify
-from models import db, User, Period
+from models import db, User, Period, Mood
 
 user_routes = Blueprint('user_routes', __name__)
 
@@ -38,6 +39,37 @@ def login():
     else:
         return jsonify({'error': 'Invalid username or password'}), 401
     
+@user_routes.route('/user-data', methods=['GET'])
+def get_user_data():
+    username = request.args.get('username')
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    today_mood = Mood.query.filter_by(user_id=user.id, date=dt.today().isoformat()).first()
+    last_period = (
+        Period.query
+        .filter_by(user_username=user.username, has_periods=True)
+        .order_by(Period.date.desc())
+        .first()
+    )
+    data = {
+        'username': user.username,
+        'email': user.email,
+        'preferences': {
+            'sweet': user.preference.sweet if user.preference else None,
+            'salty': user.preference.salty if user.preference else None,
+            'cold': user.preference.cold if user.preference else None,
+            'hot': user.preference.hot if user.preference else None,
+            'product': user.preference.product if user.preference else None,
+            'love_lang': user.preference.love_lang if user.preference else None,
+            'msg': user.preference.msg if user.preference else None
+        },
+        'mood': today_mood.mood if today_mood else None,
+        'last_period': last_period.date if last_period else None,
+        'partner': user.partner.username if user.partner else None
+    }
+    return jsonify(data), 200
+
 @user_routes.route('/last-period', methods=['GET'])
 def get_last_period():
     username = request.args.get('username')
