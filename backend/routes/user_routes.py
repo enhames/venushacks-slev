@@ -76,7 +76,13 @@ def get_user_data():
     }
     return jsonify(data), 200
 
-@user_routes.route('/partner', methods=['POST'])
+@user_routes.route('/partner', methods=['GET', 'POST'])
+def partner():    
+    if request.method == 'GET':
+        return get_partner()
+    elif request.method == 'POST':
+        return set_partner()
+
 def set_partner():
     data = request.get_json()
     username = data.get('username')
@@ -94,6 +100,8 @@ def set_partner():
 
     return jsonify({'message': 'Partner set successfully'}), 200
 
+def get_partner():
+    # stuff
 
 @user_routes.route('/last-period', methods=['GET'])
 def get_last_period():
