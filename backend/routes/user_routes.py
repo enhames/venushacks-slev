@@ -150,7 +150,7 @@ def submit_period():
     
     user = User.query.filter_by(username=username).first()
     if not user or not user.has_periods:
-        return jsonify({'error': 'User not found or doesn\'t track periods'})
+        return jsonify({'error': 'User not found or doesn\'t track periods'}), 404
     
     new_period = Period(user_username=username, date=dt.today(), had_period=True)
     db.session.add(new_period)
@@ -158,3 +158,43 @@ def submit_period():
 
     return jsonify({'message': 'Period logged'}), 201
 
+@user_routes.route('/mood', methods = ['GET', 'POST'])
+def mood():
+    if request.method == 'GET':
+        return get_mood()
+    elif request.method == 'POST':
+        return set_mood()
+    
+def get_mood(): # GET
+    username = request.args.get('username')
+    if not username:
+        return jsonify({'error': 'Username is required'}), 400
+    
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    mood = Mood.query.filter_by(user_username=username, date=dt.today).first()
+    return jsonify({'mood': mood.mood if mood else None}), 200
+
+def set_mood(): # POST
+    data = request.get_json()
+    username = data.get('username')
+    mood = data.get('mood')
+
+    if not username:
+        return jsonify({'error': 'Username is required'}), 400
+    
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'error': 'Username is required'}), 400
+    
+    prev_mood = Mood.query.filter_by(user_username=username, date=dt.today)
+    if prev_mood:
+        prev_mood.mood = new_mood
+    else:
+        new_mood = Mood(user_username=username, date=dt.today, mood=mood)
+        db.session.add(new_mood)
+
+    db.session.commit()
+    return jsonify({'message': 'Mood saved'}), 200
