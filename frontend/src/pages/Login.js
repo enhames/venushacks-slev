@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userLogin } from '../front_end_api/front_login_api';
+import {
+  StickyHeader,
+  NavBar,
+  MainContainer,
+  InputBox,
+  ActionButton
+} from '../components/SharedUI';
 
 export default function Login() {
   const [form, setForm] = useState({ username: '', password: '' });
@@ -22,11 +29,13 @@ export default function Login() {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Log In</h1>
-      <input name="username" placeholder="Username" onChange={handleChange} /><br />
-      <input name="password" type="password" placeholder="Password" onChange={handleChange} /><br />
-      <button onClick={handleSubmit}>Log In</button>
-    </div>
+    <>
+      <StickyHeader><NavBar isLoggedIn={false} /></StickyHeader>
+      <MainContainer title="Log In">
+        <InputBox name="username" placeholder="Username" value={form.username} onChange={handleChange} />
+        <InputBox name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} />
+        <ActionButton onClick={handleSubmit} label="Log In" />
+      </MainContainer>
+    </>
   );
 }
