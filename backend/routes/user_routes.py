@@ -95,9 +95,14 @@ def set_partner(): # POST
     if not user or not partner:
         return jsonify({'error': 'One or both users not found'}), 404
     
-    user.partner_username = partner_username
-    partner.partner_username = user.username
-    db.session.commit()
+    try:
+        user.partner_username = partner_username
+        partner.partner_username = username
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to set partner'}), 500
+
 
     return jsonify({'message': 'Partner set successfully'}), 200
 
@@ -112,7 +117,7 @@ def get_partner(): # GET
         return jsonify({'error': 'Partner not found'}), 404
     
     data = user.partner_username
-    return jsonify(data)
+    return jsonify({'partner_username': user.partner_username}), 200
 
 @user_routes.route('/breakup', methods=['POST'])
 def remove_partner():
@@ -127,9 +132,16 @@ def remove_partner():
     if not user or not partner:
         return jsonify({'error': 'One or both users not found'}), 404
     
-    user.partner_username = None
-    partner.partner_username = None
-    db.session.commit()
+    try:
+        user.partner_username = None
+        partner.partner_username = None
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to set partner'}), 500
+
+    return jsonify({'message': 'Partner removed'}), 200
+
 
 @user_routes.route('/last-period', methods=['GET'])
 def get_last_period():
@@ -206,9 +218,9 @@ def set_mood(): # POST
     if not user:
         return jsonify({'error': 'Username is required'}), 400
     
-    prev_mood = Mood.query.filter_by(user_username=username, date=dt.today())
+    prev_mood = Mood.query.filter_by(user_username=username, date=dt.today()).first()
     if prev_mood:
-        prev_mood.mood = new_mood
+        prev_mood.mood = mood
     else:
         new_mood = Mood(user_username=username, date=dt.today(), mood=mood)
         db.session.add(new_mood)
@@ -322,13 +334,13 @@ def get_preferences(): # GET
         return jsonify({'preferences': None}), 200
     
     data = {
-        'sweet': preferences.sweet,
-        'salty': preferences.salty,
-        'cold': preferences.cold,
-        'hot': preferences.hot,
-        'product': preferences.product,
-        'love_lang': preferences.love_lang,
-        'msg': preferences.msg
+        'sweet': target.preference.sweet if target.preference else None,
+        'salty': target.preference.salty if target.preference else None,
+        'cold': target.preference.cold if target.preference else None,
+        'hot': target.preference.hot if target.preference else None,
+        'product': target.preference.product if target.preference else None,
+        'love_lang': target.preference.love_lang if target.preference else None,
+        'msg': target.preference.msg if target.preference else None
     }
 
     return jsonify({'preferences': data}), 200

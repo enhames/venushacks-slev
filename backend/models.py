@@ -37,7 +37,7 @@ class Mood(db.Model):
 
 class Preferences(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_username = db.Column(db.String(80), db.ForeignKey('user.username'), nullable=False)
+    user_username = db.Column(db.String(80), db.ForeignKey('user.username'), nullable=False, unique=True)
     sweet = db.Column(db.String(100))
     salty = db.Column(db.String(100))
     cold = db.Column(db.String(100))
