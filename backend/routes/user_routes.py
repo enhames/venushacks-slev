@@ -256,3 +256,44 @@ def set_cravings(): # POST
 
     db.session.commit()
     return jsonify({'message': 'Mood saved'}), 200
+
+@user_routes.route('/symptoms', methods=['GET', 'POST'])
+def symptoms():
+    if request.method == 'GET':
+        return get_symptoms()
+    elif request.method == 'POST':
+        return set_symptoms()
+    
+def get_symptoms():  # GET
+    username = request.args.get('username')
+    if not username:
+        return jsonify({'error': 'Username is required'}), 400
+    
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    mood_entry = Mood.query.filter_by(user_username=username, date=dt.today()).first()
+    return jsonify({'symptoms': mood_entry.symptoms if mood_entry else None}), 200
+
+def set_symptoms():  # POST
+    data = request.get_json()
+    username = data.get('username')
+    symptoms = data.get('symptoms')
+
+    if not username:
+        return jsonify({'error': 'Username is required'}), 400
+    
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    prev_entry = Mood.query.filter_by(user_username=username, date=dt.today()).first()
+    if prev_entry:
+        prev_entry.symptoms = symptoms
+    else:
+        new_entry = Mood(user_username=username, date=dt.today(), symptoms=symptoms)
+        db.session.add(new_entry)
+
+    db.session.commit()
+    return jsonify({'message': 'Symptoms saved'}), 200
