@@ -367,3 +367,8 @@ def set_preferences(): #POST
 
     db.session.commit()
     return jsonify({'message': 'Preferences saved'}), 200
+
+@user_routes.route('/today', methods=['GET'])
+def get_today():
+    today = dt.today()
+    return jsonify({'date': today.isoformat()}), 200
