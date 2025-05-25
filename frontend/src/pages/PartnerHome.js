@@ -1,7 +1,6 @@
-// src/pages/Partner.js
 import React from 'react';
 
-export default function Partner() {
+export default function PartnerHome() {
   return (
     <div style={{ padding: '2rem' }}>
       <h1>Your Partner's Info</h1>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Preferences() {
+export default function PeriodHaverPreferences() {
   const [cravings, setCravings] = useState({
     sweet: '',
     salty: '',
