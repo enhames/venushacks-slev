@@ -76,6 +76,25 @@ def get_user_data():
     }
     return jsonify(data), 200
 
+@user_routes.route('/partner', methods=['POST'])
+def set_partner():
+    data = request.get_json()
+    username = data.get('username')
+    partner_username = data.get('partner_username')
+
+    if not username or not partner_username:
+        return jsonify({'error': 'Both usernames required'}), 400
+    user = User.query.filter_by(username=username).first()
+    partner = User.query.filter_by(username=partner_username).first()
+    if not user or not partner:
+        return jsonify({'error': 'One or both users not found'}), 404
+    
+    user.partner_username = partner_username
+    db.session.commit()
+
+    return jsonify({'message': 'Partner set successfully'}), 200
+
+
 @user_routes.route('/last-period', methods=['GET'])
 def get_last_period():
     username = request.args.get('username')
@@ -119,3 +138,4 @@ def submit_period():
     db.session.commit()
 
     return jsonify({'message': 'Period logged'}), 201
+
