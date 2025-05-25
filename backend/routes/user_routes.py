@@ -1,6 +1,6 @@
 from datetime import date as dt
 from flask import Blueprint, request, jsonify
-from models import db, User, Period, Mood
+from models import db, User, Period, Mood, Preferences
 
 user_routes = Blueprint('user_routes', __name__)
 
@@ -297,3 +297,61 @@ def set_symptoms():  # POST
 
     db.session.commit()
     return jsonify({'message': 'Symptoms saved'}), 200
+
+@user_routes.route('/preferences', methods = ['GET', 'POST'])
+def preferences():
+    if request.method == 'GET':
+        return get_preferences()
+    elif request.method == 'POST':
+        return set_preferences()
+    
+def get_preferences(): # GET
+    username = request.args.get('username')
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    if user.has_periods:
+        target = user
+    elif user.partner and user.partner.has_periods:
+        target = user.partner
+    else:
+        return jsonify({'message': 'No data available'}), 200
+
+    preferences = Preferences.query.filter_by(user_username=target.username).first()
+    if not preferences:
+        return jsonify({'preferences': None}), 200
+    
+    data = {
+        'sweet': preferences.sweet,
+        'salty': preferences.salty,
+        'cold': preferences.cold,
+        'hot': preferences.hot,
+        'product': preferences.product,
+        'love_lang': preferences.love_lang,
+        'msg': preferences.msg
+    }
+
+    return jsonify({'preferences': data}), 200
+
+
+def set_preferences(): #POST
+    data = request.get_json()
+    username = data.get('username')
+    if not username:
+        return jsonify({'error': 'Username is required'}), 400
+
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    preferences = Preferences.query.filter_by(user_username=username).first()
+    if not preferences:
+        preferences = Preferences(user_username=username)
+        db.session.add(preferences)
+    
+    for field in ['sweet', 'salty', 'cold', 'hot', 'product', 'love_lang', 'msg']:
+        if field in data:
+            setattr(preferences, field, data[field])
+
+    db.session.commit()
+    return jsonify({'message': 'Preferences saved'}), 200
