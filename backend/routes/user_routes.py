@@ -83,7 +83,7 @@ def partner():
     elif request.method == 'POST':
         return set_partner()
 
-def set_partner():
+def set_partner(): # POST
     data = request.get_json()
     username = data.get('username')
     partner_username = data.get('partner_username')
@@ -100,8 +100,19 @@ def set_partner():
 
     return jsonify({'message': 'Partner set successfully'}), 200
 
-def get_partner():
-    # stuff
+def get_partner(): # GET
+    username = request.args.get('username')
+    if not username:
+        return jsonify({'error': 'Username is required'}), 400
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    if not user.partner_username:
+        return jsonify({'error': 'Partner not found'}), 404
+    
+    data = user.partner_username
+    return jsonify(data)
+
 
 @user_routes.route('/last-period', methods=['GET'])
 def get_last_period():
