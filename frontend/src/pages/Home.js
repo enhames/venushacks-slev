@@ -23,10 +23,10 @@ export default function Home() {
           </p>
           <PeriodHaverHome guestMode={true} />
         </MainContainer>
-      ) : user.role === 'partner' ? (
-        <PartnerHome />
-      ) : (
+      ) : user.has_periods ? (
         <PeriodHaverHome />
+      ) : (
+        <PartnerHome />
       )}
     </>
   );

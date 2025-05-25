@@ -54,7 +54,7 @@ export default function PeriodHaverHome() {
       return;
     }
 
-    fetch('http://localhost:5000/last-period', {
+    fetch('http://localhost:5000/period', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: user.username, date: new Date().toISOString() }),
@@ -136,9 +136,9 @@ export default function PeriodHaverHome() {
               <div key={label} style={{ textAlign: 'center' }}>
                 <button
                   onClick={() => {
-                    setCraving(emoji);   // 1) Update UI
+                    setCraving(emoji);
                     const { username } = JSON.parse(localStorage.getItem('user'));
-                    saveCravings(username, emoji)  // 2) Persist
+                    saveCravings({ username, craving: emoji })
                       .then(() => console.log('Craving saved!'))
                       .catch(e => console.error('Save craving failed:', e));
                   }}
@@ -160,9 +160,9 @@ export default function PeriodHaverHome() {
               <div key={label} style={{ textAlign: 'center' }}>
                 <button
                   onClick={() => {
-                    setSymptom(emoji);  // 1) Update UI
+                    setSymptom(emoji);
                     const { username } = JSON.parse(localStorage.getItem('user'));
-                    saveSymptoms(username, emoji)  // 2) Persist
+                    saveSymptoms({ username, symptom: emoji })
                       .then(() => console.log('Symptom saved!'))
                       .catch(e => console.error('Save symptom failed:', e));
                   }}

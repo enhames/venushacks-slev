@@ -27,3 +27,18 @@ export async function getRecentPeriod(username){
 
     return data;
 }
+
+export async function checkHasPeriods(username) {
+  try {
+    const res = await fetch(`http://localhost:5000/has-periods?username=${(username)}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(`Error fetching has_periods`);
+    }
+    return data.has_periods;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}

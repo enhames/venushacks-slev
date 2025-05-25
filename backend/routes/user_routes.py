@@ -35,7 +35,7 @@ def login():
     user = User.query.filter_by(username=username, password=password).first()
 
     if user:
-        return jsonify({'message': 'Login successful', 'username': user.username}), 200
+        return jsonify({'username': user.username, 'has_periods': user.has_periods}), 200
     else:
         return jsonify({'error': 'Invalid username or password'}), 401
     
@@ -123,24 +123,28 @@ def get_partner(): # GET
 def remove_partner():
     data = request.get_json()
     username = data.get('username')
-    partner_username = data.get('partner_username')
 
-    if not username or not partner_username:
-        return jsonify({'error': 'Both usernames required'}), 400
+    if not username:
+        return jsonify({'error': 'Username required'}), 400
+
     user = User.query.filter_by(username=username).first()
+    if not user or not user.partner_username:
+        return jsonify({'error': 'User or partner not found'}), 404
+
+    partner_username = user.partner_username
     partner = User.query.filter_by(username=partner_username).first()
-    if not user or not partner:
-        return jsonify({'error': 'One or both users not found'}), 404
-    
+
     try:
         user.partner_username = None
-        partner.partner_username = None
+        if partner:
+            partner.partner_username = None
         db.session.commit()
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': 'Failed to set partner'}), 500
+        return jsonify({'error': 'Failed to remove partner'}), 500
 
     return jsonify({'message': 'Partner removed'}), 200
+
 
 
 @user_routes.route('/last-period', methods=['GET'])
@@ -372,3 +376,15 @@ def set_preferences(): #POST
 def get_today():
     today = dt.today()
     return jsonify({'date': today.isoformat()}), 200
+
+@user_routes.route('/has-periods', methods=['GET'])
+def has_periods():
+    username = request.args.get('username')
+    if not username:
+        return jsonify({'error': 'Username required'}), 400
+
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    return jsonify({'has_periods': user.has_periods}), 200

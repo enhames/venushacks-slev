@@ -1,3 +1,4 @@
+import { removePartner, updatePartner } from '../front_end_api/front_partner_api.js';
 import React, { useState } from 'react';
 import {
   StickyHeader,
@@ -11,19 +12,18 @@ export default function Account() {
   const [partnerName, setPartnerName] = useState('');
 
   const handleLink = async () => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    const res = await fetch('http://localhost:5000/link-partner', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username: user.username,
-        partner: partnerName,
-      }),
-    });
-
-    const data = await res.json();
-    if (res.ok) alert("Partner linked!");
-    else alert(data.error || "Failed to link partner");
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (partnerName.trim() === '') {
+        await removePartner(user.username);
+        alert('Partner removed~');
+      } else {
+        await updatePartner(user.username, partnerName.trim());
+        alert('Partner linked!');
+      }
+    } catch (error) {
+      alert(error.message || 'Failed to link partner');
+    }
   };
 
   return (

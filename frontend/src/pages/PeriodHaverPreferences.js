@@ -1,3 +1,4 @@
+import { setPreferences } from '../front_end_api/front_preferences_api.js';
 import React, { useState } from 'react';
 import {
   StickyHeader,
@@ -20,14 +21,28 @@ export default function PeriodHaverPreferences() {
     setCravings((prev) => ({ ...prev, [type]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isGuest) {
       alert("Please log in to save your preferences.");
       return;
     }
-    console.log({ cravings, product, loveLanguage, message });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+
+    const user = JSON.parse(localStorage.getItem('user'));
+    const preferences = {
+      cravings,
+      product,
+      loveLanguage,
+      message,
+    };
+
+    try {
+      await setPreferences(user.username, preferences);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      console.error("Failed to save preferences:", err);
+      alert("Something went wrong saving your preferences.");
+    }
   };
 
   const handleLoveLanguageClick = (emoji) => {
