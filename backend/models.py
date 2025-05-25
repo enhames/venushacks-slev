@@ -5,8 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import foreign
 from sqlalchemy import and_
 
-app = Flask(__name__)
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 
 class User(db.Model):
     username = db.Column(db.String(80), primary_key=True)
