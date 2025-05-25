@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StickyHeader,
   NavBar,
@@ -6,6 +6,7 @@ import {
   ActionButton,
   InputBox
 } from '../components/SharedUI';
+import { setPreferences, getPreferences } from '../front_end_api/front_preferences_api';
 
 export default function PeriodHaverPreferences() {
   const [cravings, setCravings] = useState({ sweet: '', salty: '', cold: '', hot: '' });
@@ -14,7 +15,20 @@ export default function PeriodHaverPreferences() {
   const [message, setMessage] = useState('');
   const [saved, setSaved] = useState(false);
 
-  const isGuest = !localStorage.getItem('user');
+  const user = JSON.parse(localStorage.getItem('user'));
+  const isGuest = !user;
+
+  useEffect(() => {
+    if (isGuest) return;
+    getPreferences(user.username)
+      .then(data => {
+        if (data.cravings) setCravings(data.cravings);
+        if (data.product) setProduct(data.product);
+        if (data.loveLanguage) setLoveLanguage(data.loveLanguage);
+        if (data.message) setMessage(data.message);
+      })
+      .catch(err => console.error("Failed to load preferences:", err));
+  }, [isGuest, user]);
 
   const handleCravingChange = (type, value) => {
     setCravings((prev) => ({ ...prev, [type]: value }));
@@ -25,9 +39,14 @@ export default function PeriodHaverPreferences() {
       alert("Please log in to save your preferences.");
       return;
     }
-    console.log({ cravings, product, loveLanguage, message });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+
+    const preferences = { cravings, product, loveLanguage, message };
+    setPreferences(user.username, preferences)
+      .then(() => {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      })
+      .catch(err => alert("Failed to save preferences."));
   };
 
   const handleLoveLanguageClick = (emoji) => {

@@ -4,17 +4,17 @@ import {
   NavBar,
   MainContainer
 } from '../components/SharedUI';
-import { BASE_URL } from '../config';
+import { getPreferences } from '../front_end_api/front_preferences_api';
 
 export default function PartnerPreferences() {
   const [prefs, setPrefs] = useState(null);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) return;
-    fetch(`${BASE_URL}/partner-preferences?username=${user.username}`)
-      .then((res) => res.json())
-      .then((data) => setPrefs(data));
+    if (!user || !user.partner) return;
+    getPreferences(user.partner)
+      .then((data) => setPrefs(data))
+      .catch(err => console.error("Failed to load partner preferences:", err));
   }, []);
 
   return (
