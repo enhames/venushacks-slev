@@ -1,34 +1,30 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { register } from '../front_end_api/front_register_api';
 
 export default function Signup() {
   const [form, setForm] = useState({
     username: '',
     email: '',
     password: '',
-    role: 'period-haver', // default
+    has_periods: true,
   });
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    const fieldValue = type === 'checkbox' ? checked : value;
+    setForm((prev) => ({ ...prev, [name]: fieldValue }));
   };
 
   const handleSubmit = async () => {
-    const res = await fetch('http://localhost:5000/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      localStorage.setItem('user', JSON.stringify(data));
+    try {
+      const user = await register(form);
+      localStorage.setItem('user', JSON.stringify(user));
       navigate('/');
-    } else {
-      alert(data.error || 'Signup failed');
+    } catch (err) {
+      alert(err.message || "Signup failed.");
     }
   };
 
@@ -39,11 +35,13 @@ export default function Signup() {
       <input name="email" placeholder="Email" onChange={handleChange} /><br />
       <input name="password" type="password" placeholder="Password" onChange={handleChange} /><br />
       <label>
-        Role:
-        <select name="role" value={form.role} onChange={handleChange}>
-          <option value="period-haver">Period Haver</option>
-          <option value="partner">Partner</option>
-        </select>
+        I have periods:
+        <input
+          type="checkbox"
+          name="has_periods"
+          checked={form.has_periods}
+          onChange={handleChange}
+        />
       </label><br />
       <button onClick={handleSubmit}>Create Account</button>
     </div>

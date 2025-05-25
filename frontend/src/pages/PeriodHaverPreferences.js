@@ -1,90 +1,141 @@
 import React, { useState } from 'react';
 
 export default function PeriodHaverPreferences() {
-  const [cravings, setCravings] = useState({
-    sweet: '',
-    salty: '',
-    cold: '',
-    hot: '',
-  });
-
+  const [cravings, setCravings] = useState({ sweet: '', salty: '', cold: '', hot: '' });
   const [product, setProduct] = useState('');
   const [loveLanguage, setLoveLanguage] = useState('');
   const [message, setMessage] = useState('');
+  const [saved, setSaved] = useState(false);
 
   const handleCravingChange = (type, value) => {
     setCravings((prev) => ({ ...prev, [type]: value }));
   };
 
   const handleSubmit = () => {
-    const data = {
-      cravings,
-      product,
-      loveLanguage,
-      message,
-    };
-
-    console.log('Submitting to backend:', data);
-    // When backend is ready:
-    // fetch('http://localhost:5000/preferences', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(data),
-    // })
+    // Save preferences logic here (e.g., POST to backend)
+    console.log({ cravings, product, loveLanguage, message });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   };
 
+  const circleButtonStyle = (selected) => ({
+    width: '50px',
+    height: '50px',
+    borderRadius: '50%',
+    backgroundColor: selected ? '#574260' : '#ddd',
+    color: selected ? '#fff' : '#574260',
+    fontWeight: 'bold',
+    border: selected ? '3px solid #fff' : 'none',
+    margin: '0.5rem',
+    cursor: 'pointer',
+    fontFamily: 'Outfit',
+    fontSize: '22px',
+  });
+
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Your Preferences</h1>
+    <div style={{ backgroundColor: '#B09CD3', minHeight: '100vh', fontFamily: 'Outfit' }}>
+      <header style={{
+        position: 'sticky',
+        top: 0,
+        backgroundColor: '#B09CD3',
+        paddingBottom: '1rem',
+        zIndex: 10,
+        borderBottom: '1px solid #57426033',
+        textAlign: 'center'
+      }}>
+        <h1 style={{ fontFamily: 'DM Serif Display', color: '#574260', fontSize: '3rem', marginBottom: '0.5rem' }}>sync’d</h1>
+        <nav style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem' }}>
+          {['Home', 'Preferences', 'Sign Up', 'Login', 'Account'].map((label) => (
+            <a
+              key={label}
+              href={`/${label.toLowerCase().replace(' ', '')}`}
+              style={{
+                textDecoration: 'none',
+                padding: '0.5rem 1.2rem',
+                borderRadius: '8px',
+                backgroundColor: '#574260',
+                color: '#fff',
+                fontFamily: 'Outfit',
+                fontWeight: 500,
+                fontSize: '14px'
+              }}
+            >{label}</a>
+          ))}
+        </nav>
+      </header>
 
-      <h2>Cravings</h2>
-      {['sweet', 'salty', 'cold', 'hot'].map((type) => (
-        <div key={type} style={{ marginBottom: '1rem' }}>
-          <label>{type.charAt(0).toUpperCase() + type.slice(1)}:</label>
-          <input
-            type="text"
-            value={cravings[type]}
-            onChange={(e) => handleCravingChange(type, e.target.value)}
-            style={{ marginLeft: '0.5rem', padding: '0.3rem' }}
-          />
+      <main style={{ padding: '2rem', textAlign: 'center', color: '#574260' }}>
+        <h2>Your Preferences</h2>
+
+        <h3>Cravings</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', maxWidth: '500px', margin: 'auto', gap: '1rem' }}>
+          {['sweet', 'salty', 'cold', 'hot'].map((type) => (
+            <label key={type} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+              {type.charAt(0).toUpperCase() + type.slice(1)}:
+              <input
+                type="text"
+                value={cravings[type]}
+                onChange={(e) => handleCravingChange(type, e.target.value)}
+                placeholder={`e.g. ${type === 'cold' ? 'boba' : type === 'hot' ? 'tea' : type === 'sweet' ? 'cookies' : 'chips'}`}
+                style={{ padding: '0.5rem', width: '100%' }}
+              />
+            </label>
+          ))}
         </div>
-      ))}
 
-      <h2>Preferred Period Product</h2>
-      <input
-        type="text"
-        value={product}
-        onChange={(e) => setProduct(e.target.value)}
-        placeholder="e.g., pads, tampons, menstrual cup"
-        style={{ marginBottom: '1rem', padding: '0.3rem', width: '100%' }}
-      />
+        <h3 style={{ marginTop: '2rem' }}>Preferred Period Product(s)</h3>
+        <textarea
+          value={product}
+          onChange={(e) => setProduct(e.target.value)}
+          placeholder="e.g. pads, tampons, cup... get specific!"
+          rows={2}
+          style={{ padding: '0.5rem', width: '80%', maxWidth: '600px', fontFamily: 'Outfit' }}
+        />
 
-      <h2>Love Language</h2>
-      {['receiving gifts', 'words of affirmation', 'acts of service', 'physical touch', 'quality time'].map((l) => (
-        <button
-          key={l}
-          onClick={() => setLoveLanguage(l)}
-          style={{
-            marginRight: '0.5rem',
-            backgroundColor: loveLanguage === l ? '#e0b0ff' : '#eee',
-          }}
-        >
-          {l}
-        </button>
-      ))}
+        <h3 style={{ marginTop: '2rem' }}>Love Language</h3>
+        <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '2rem' }}>
+          {[
+            { emoji: '🎁', label: 'receiving gifts' },
+            { emoji: '💬', label: 'words of affirmation' },
+            { emoji: '🧹', label: 'acts of service' },
+            { emoji: '🤗', label: 'physical touch' },
+            { emoji: '⏰', label: 'quality time' },
+          ].map(({ emoji, label }) => (
+            <div key={label} style={{ textAlign: 'center' }}>
+              <button
+                onClick={() => setLoveLanguage(emoji)}
+                style={circleButtonStyle(loveLanguage === emoji)}
+              >{emoji}</button>
+              <div style={{ fontSize: '12px', marginTop: '0.3rem' }}>{label}</div>
+            </div>
+          ))}
+        </div>
 
-      <h2>Message to Partner</h2>
-      <textarea
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Write something for your partner 💌"
-        rows={4}
-        style={{ width: '100%', padding: '0.5rem', marginTop: '0.5rem' }}
-      />
+        <h3 style={{ marginTop: '2rem' }}>Message to Partner</h3>
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Write something for your partner 📨"
+          rows={4}
+          style={{ padding: '0.5rem', width: '80%', maxWidth: '600px', fontFamily: 'Outfit' }}
+        />
 
-      <div style={{ marginTop: '1.5rem' }}>
-        <button onClick={handleSubmit}>Save Preferences</button>
-      </div>
+        <div style={{ marginTop: '2rem' }}>
+          <button onClick={handleSubmit} style={{
+            backgroundColor: '#574260',
+            color: '#fff',
+            border: 'none',
+            padding: '0.7rem 1.5rem',
+            borderRadius: '8px',
+            fontFamily: 'Outfit',
+            cursor: 'pointer'
+          }}>
+            Save Preferences
+          </button>
+        </div>
+
+        {saved && <p style={{ marginTop: '1rem', color: '#fff', fontWeight: 'bold' }}>Preferences saved ✅</p>}
+      </main>
     </div>
   );
 }

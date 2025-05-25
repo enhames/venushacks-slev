@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import BASE_URL from '../config';
+import { BASE_URL } from '../config';
 
 export default function PartnerPreferences() {
   const [prefs, setPrefs] = useState(null);

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { userLogin } from '../front_end_api/front_login_api';
 
 export default function Login() {
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ username: '', password: '' });
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -11,26 +12,19 @@ export default function Login() {
   };
 
   const handleSubmit = async () => {
-    const res = await fetch('http://localhost:5000/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      localStorage.setItem('user', JSON.stringify(data));
+    try {
+      const user = await userLogin(form);
+      localStorage.setItem('user', JSON.stringify(user));
       navigate('/');
-    } else {
-      alert(data.error || 'Login failed');
+    } catch (err) {
+      alert(err.message || "Login failed.");
     }
   };
 
   return (
     <div style={{ padding: '2rem' }}>
       <h1>Log In</h1>
-      <input name="email" placeholder="Email" onChange={handleChange} /><br />
+      <input name="username" placeholder="Username" onChange={handleChange} /><br />
       <input name="password" type="password" placeholder="Password" onChange={handleChange} /><br />
       <button onClick={handleSubmit}>Log In</button>
     </div>
