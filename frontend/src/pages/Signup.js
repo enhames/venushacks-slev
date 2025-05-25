@@ -1,51 +1,59 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { register } from '../front_end_api/front_register_api';
+import {
+  StickyHeader,
+  NavBar,
+  MainContainer,
+  InputBox,
+  ActionButton
+} from '../components/SharedUI';
 
 export default function Signup() {
   const [form, setForm] = useState({
     username: '',
     email: '',
     password: '',
-    role: 'period-haver', // default
+    has_periods: true,
   });
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    const fieldValue = type === 'checkbox' ? checked : value;
+    setForm((prev) => ({ ...prev, [name]: fieldValue }));
   };
 
   const handleSubmit = async () => {
-    const res = await fetch('http://localhost:5000/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      localStorage.setItem('user', JSON.stringify(data));
+    try {
+      const user = await register(form);
+      localStorage.setItem('user', JSON.stringify(user));
       navigate('/');
-    } else {
-      alert(data.error || 'Signup failed');
+    } catch (err) {
+      alert(err.message || "Signup failed.");
     }
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Sign Up</h1>
-      <input name="username" placeholder="Username" onChange={handleChange} /><br />
-      <input name="email" placeholder="Email" onChange={handleChange} /><br />
-      <input name="password" type="password" placeholder="Password" onChange={handleChange} /><br />
-      <label>
-        Role:
-        <select name="role" value={form.role} onChange={handleChange}>
-          <option value="period-haver">Period Haver</option>
-          <option value="partner">Partner</option>
-        </select>
-      </label><br />
-      <button onClick={handleSubmit}>Create Account</button>
-    </div>
+    <>
+      <StickyHeader><NavBar isLoggedIn={false} /></StickyHeader>
+      <MainContainer title="Sign Up">
+        <InputBox name="username" placeholder="Username" value={form.username} onChange={handleChange} />
+        <InputBox name="email" placeholder="Email" value={form.email} onChange={handleChange} />
+        <InputBox name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} />
+        <label style={{ display: 'block', marginBottom: '1rem' }}>
+          I have periods:
+          <input
+            type="checkbox"
+            name="has_periods"
+            checked={form.has_periods}
+            onChange={handleChange}
+            style={{ marginLeft: '0.5rem' }}
+          />
+        </label>
+        <ActionButton onClick={handleSubmit} label="Create Account" />
+      </MainContainer>
+    </>
   );
 }

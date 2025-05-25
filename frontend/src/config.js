@@ -1,10 +1,1 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-const BASE_URL = 'http://localhost:3000';
-=======
-const BASE_URL = 'https://localhost:3000';
->>>>>>> spencer_subbranch
-=======
-const BASE_URL = 'http://localhost:3000';
->>>>>>> spencer_subbranch
-export default BASE_URL;
+export const BASE_URL = 'http://localhost:5000';

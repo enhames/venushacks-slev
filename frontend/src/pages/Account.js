@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+import {
+  StickyHeader,
+  NavBar,
+  MainContainer,
+  InputBox,
+  ActionButton
+} from '../components/SharedUI';
 
 export default function Account() {
   const [partnerName, setPartnerName] = useState('');
@@ -20,14 +27,16 @@ export default function Account() {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Sync with Your Partner</h1>
-      <input
-        value={partnerName}
-        onChange={(e) => setPartnerName(e.target.value)}
-        placeholder="Enter partner's username"
-      />
-      <button onClick={handleLink}>Link Partner</button>
-    </div>
+    <>
+      <StickyHeader><NavBar isLoggedIn={true} /></StickyHeader>
+      <MainContainer title="Sync with Your Partner">
+        <InputBox
+          value={partnerName}
+          onChange={(e) => setPartnerName(e.target.value)}
+          placeholder="Enter partner's username"
+        />
+        <ActionButton onClick={handleLink} label="Link Partner" />
+      </MainContainer>
+    </>
   );
 }

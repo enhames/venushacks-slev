@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import {
+  StickyHeader,
+  NavBar,
+  MainContainer
+} from '../components/SharedUI';
 
 export default function PeriodHaverHome() {
   const [mood, setMood] = useState('');
@@ -8,7 +13,6 @@ export default function PeriodHaverHome() {
   const [phase, setPhase] = useState('');
   const [loadingCycle, setLoadingCycle] = useState(true);
 
-  // On page load, get period start date and calculate cycle info
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user || !user.username) return;
@@ -40,35 +44,6 @@ export default function PeriodHaverHome() {
     return 'Luteal Phase';
   };
 
-  const handleSubmit = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user || !user.username) {
-      alert("User not logged in.");
-      return;
-    }
-
-    const data = {
-      username: user.username,
-      mood,
-      craving,
-      symptom,
-    };
-
-    fetch('http://localhost:5000/daily', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    })
-      .then((res) => {
-        if (res.ok) alert("Saved!");
-        else alert("Error saving.");
-      })
-      .catch((err) => {
-        console.error("Submit error:", err);
-        alert("Something went wrong.");
-      });
-  };
-
   const handleLogPeriodStart = () => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user || !user.username) {
@@ -90,74 +65,79 @@ export default function PeriodHaverHome() {
     });
   };
 
+  const circleButtonStyle = (selected) => ({
+    width: '50px',
+    height: '50px',
+    borderRadius: '50%',
+    backgroundColor: selected ? '#574260' : '#ddd',
+    color: selected ? '#fff' : '#574260',
+    fontWeight: 'bold',
+    border: selected ? '3px solid #fff' : 'none',
+    margin: '0.5rem',
+    cursor: 'pointer',
+    fontFamily: 'Outfit',
+    fontSize: '22px',
+  });
+
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>
-        {loadingCycle
-          ? 'Loading Cycle Info...'
-          : cycleDay
-            ? `Cycle Day ${cycleDay} — ${phase}`
-            : 'No period start logged yet'}
-      </h1>
+    <>
+      <StickyHeader><NavBar isLoggedIn={true} /></StickyHeader>
+      <MainContainer title={loadingCycle ? 'Loading Cycle Info...' : cycleDay ? `Cycle Day ${cycleDay}: ${phase}` : 'No period start logged yet'}>
+        <button
+          onClick={handleLogPeriodStart}
+          style={{
+            marginBottom: '2rem',
+            backgroundColor: '#574260',
+            color: '#FFFFFF',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '0.6rem 1.2rem',
+            fontSize: '14px',
+            fontFamily: 'Outfit',
+            cursor: 'pointer'
+          }}>
+          Log Period Start (Today)
+        </button>
 
-      <button onClick={handleLogPeriodStart} style={{ marginBottom: '1rem' }}>
-        Log Period Start (Today)
-      </button>
+        {/* Mood */}
+        <section>
+          <h3>How are you feeling today?</h3>
+          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '600px', margin: '0 auto', gap: '2rem' }}>
+            {[{ emoji: '😭', label: 'very sad' }, { emoji: '😢', label: 'sad' }, { emoji: '😐', label: 'okay' }, { emoji: '🙂', label: 'good' }, { emoji: '🥰', label: 'very happy' }].map(({ emoji, label }) => (
+              <div key={label} style={{ textAlign: 'center' }}>
+                <button onClick={() => setMood(emoji)} style={circleButtonStyle(mood === emoji)}>{emoji}</button>
+                <div style={{ fontSize: '12px', color: '#574260', marginTop: '0.3rem' }}>{label}</div>
+              </div>
+            ))}
+          </div>
+        </section>
 
-      <h2>How are you feeling today?</h2>
-      <div>
-        {['very sad', 'sad', 'okay', 'good', 'very happy'].map((m) => (
-          <button
-            key={m}
-            onClick={() => setMood(m)}
-            style={{
-              marginRight: '0.5rem',
-              backgroundColor: mood === m ? '#e0b0ff' : '#eee',
-            }}
-          >
-            {m}
-          </button>
-        ))}
-      </div>
-      <p>Selected mood: {mood}</p>
+        {/* Cravings */}
+        <section>
+          <h3 style={{ marginTop: '2rem' }}>Today’s cravings</h3>
+          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '600px', margin: '0 auto', gap: '2rem' }}>
+            {[{ emoji: '🍫', label: 'sweet' }, { emoji: '🍟', label: 'salty' }, { emoji: '🍦', label: 'cold' }, { emoji: '🍲', label: 'hot' }, { emoji: '🚫', label: 'nothing!' }].map(({ emoji, label }) => (
+              <div key={label} style={{ textAlign: 'center' }}>
+                <button onClick={() => setCraving(emoji)} style={circleButtonStyle(craving === emoji)}>{emoji}</button>
+                <div style={{ fontSize: '12px', color: '#574260', marginTop: '0.3rem' }}>{label}</div>
+              </div>
+            ))}
+          </div>
+        </section>
 
-      <h2>Today’s cravings</h2>
-      <div>
-        {['sweet', 'salty', 'cold', 'hot', 'nothing rn'].map((c) => (
-          <button
-            key={c}
-            onClick={() => setCraving(c)}
-            style={{
-              marginRight: '0.5rem',
-              backgroundColor: craving === c ? '#e0b0ff' : '#eee',
-            }}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-      <p>Selected craving: {craving}</p>
-
-      <h2>Today’s symptoms</h2>
-      <div>
-        {['cramps', 'headache', 'stomach ache', 'fatigue', 'all good'].map((s) => (
-          <button
-            key={s}
-            onClick={() => setSymptom(s)}
-            style={{
-              marginRight: '0.5rem',
-              backgroundColor: symptom === s ? '#e0b0ff' : '#eee',
-            }}
-          >
-            {s}
-          </button>
-        ))}
-      </div>
-      <p>Selected symptom: {symptom}</p>
-
-      <div style={{ marginTop: '2rem' }}>
-        <button onClick={handleSubmit}>Save Daily Info</button>
-      </div>
-    </div>
+        {/* Symptoms */}
+        <section>
+          <h3 style={{ marginTop: '2rem' }}>Today’s symptoms</h3>
+          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '600px', margin: '0 auto', gap: '2rem' }}>
+            {[{ emoji: '🤕', label: 'cramps' }, { emoji: '😖', label: 'headache' }, { emoji: '🤢', label: 'stomach ache' }, { emoji: '🥱', label: 'fatigue' }, { emoji: '💪', label: 'all good' }].map(({ emoji, label }) => (
+              <div key={label} style={{ textAlign: 'center' }}>
+                <button onClick={() => setSymptom(emoji)} style={circleButtonStyle(symptom === emoji)}>{emoji}</button>
+                <div style={{ fontSize: '12px', color: '#574260', marginTop: '0.3rem' }}>{label}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </MainContainer>
+    </>
   );
 }
