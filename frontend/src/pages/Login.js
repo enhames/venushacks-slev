@@ -19,16 +19,9 @@ export default function Login() {
   };
 
   const handleSubmit = async () => {
-    const res = await fetch('/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      localStorage.setItem('user', JSON.stringify(data));
+    try {
+      const user = await userLogin(form);
+      localStorage.setItem('user', JSON.stringify(user));
       navigate('/');
     } catch (err) {
       alert(err.message || "Login failed.");
