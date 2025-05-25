@@ -1,3 +1,6 @@
+import { send_mood as saveMood } from '../front_end_api/front_mood_api';
+import { setCravings as saveCravings } from '../front_end_api/front_cravings_api';
+import { setSymptoms as saveSymptoms } from '../front_end_api/front_symptoms_api';
 import React, { useState, useEffect } from 'react';
 import {
   StickyHeader,
@@ -17,7 +20,7 @@ export default function PeriodHaverHome() {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user || !user.username) return;
 
-    fetch(`http://localhost:5000/period-start/${user.username}`)
+    fetch(`http://localhost:5000/last-period?username=${user.username}`)
       .then(res => res.json())
       .then(data => {
         if (!data.date) {
@@ -51,7 +54,7 @@ export default function PeriodHaverHome() {
       return;
     }
 
-    fetch('http://localhost:5000/period-start', {
+    fetch('http://localhost:5000/last-period', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: user.username, date: new Date().toISOString() }),
@@ -78,7 +81,6 @@ export default function PeriodHaverHome() {
     fontFamily: 'Outfit',
     fontSize: '22px',
   });
-
   return (
     <>
       <StickyHeader><NavBar isLoggedIn={true} /></StickyHeader>
@@ -105,7 +107,21 @@ export default function PeriodHaverHome() {
           <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '600px', margin: '0 auto', gap: '2rem' }}>
             {[{ emoji: '😭', label: 'very sad' }, { emoji: '😢', label: 'sad' }, { emoji: '😐', label: 'okay' }, { emoji: '🙂', label: 'good' }, { emoji: '🥰', label: 'very happy' }].map(({ emoji, label }) => (
               <div key={label} style={{ textAlign: 'center' }}>
-                <button onClick={() => setMood(emoji)} style={circleButtonStyle(mood === emoji)}>{emoji}</button>
+                <button
+                  onClick={() => {
+                    // 1) Update UI
+                    setMood(emoji);
+
+                    // 2) Persist to backend
+                    const { username } = JSON.parse(localStorage.getItem('user'));
+                    saveMood({ username, mood: emoji })
+                      .then(() => console.log('Mood saved!'))
+                      .catch(e => console.error('Save mood failed:', e));
+                  }}
+                  style={circleButtonStyle(mood === emoji)}
+                >
+                  {emoji}
+                </button>
                 <div style={{ fontSize: '12px', color: '#574260', marginTop: '0.3rem' }}>{label}</div>
               </div>
             ))}
@@ -118,7 +134,18 @@ export default function PeriodHaverHome() {
           <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '600px', margin: '0 auto', gap: '2rem' }}>
             {[{ emoji: '🍫', label: 'sweet' }, { emoji: '🍟', label: 'salty' }, { emoji: '🍦', label: 'cold' }, { emoji: '🍲', label: 'hot' }, { emoji: '🚫', label: 'nothing!' }].map(({ emoji, label }) => (
               <div key={label} style={{ textAlign: 'center' }}>
-                <button onClick={() => setCraving(emoji)} style={circleButtonStyle(craving === emoji)}>{emoji}</button>
+                <button
+                  onClick={() => {
+                    setCraving(emoji);   // 1) Update UI
+                    const { username } = JSON.parse(localStorage.getItem('user'));
+                    saveCravings(username, emoji)  // 2) Persist
+                      .then(() => console.log('Craving saved!'))
+                      .catch(e => console.error('Save craving failed:', e));
+                  }}
+                  style={circleButtonStyle(craving === emoji)}
+                >
+                  {emoji}
+                </button>
                 <div style={{ fontSize: '12px', color: '#574260', marginTop: '0.3rem' }}>{label}</div>
               </div>
             ))}
@@ -131,7 +158,18 @@ export default function PeriodHaverHome() {
           <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '600px', margin: '0 auto', gap: '2rem' }}>
             {[{ emoji: '🤕', label: 'cramps' }, { emoji: '😖', label: 'headache' }, { emoji: '🤢', label: 'stomach ache' }, { emoji: '🥱', label: 'fatigue' }, { emoji: '💪', label: 'all good' }].map(({ emoji, label }) => (
               <div key={label} style={{ textAlign: 'center' }}>
-                <button onClick={() => setSymptom(emoji)} style={circleButtonStyle(symptom === emoji)}>{emoji}</button>
+                <button
+                  onClick={() => {
+                    setSymptom(emoji);  // 1) Update UI
+                    const { username } = JSON.parse(localStorage.getItem('user'));
+                    saveSymptoms(username, emoji)  // 2) Persist
+                      .then(() => console.log('Symptom saved!'))
+                      .catch(e => console.error('Save symptom failed:', e));
+                  }}
+                  style={circleButtonStyle(symptom === emoji)}
+                >
+                  {emoji}
+                </button>
                 <div style={{ fontSize: '12px', color: '#574260', marginTop: '0.3rem' }}>{label}</div>
               </div>
             ))}

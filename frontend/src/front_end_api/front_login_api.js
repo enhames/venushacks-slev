@@ -17,7 +17,7 @@ export async function userLogin({ username, password}){
 }
 
 export async function getEverything(username){
-    const response = await fetch(`${BASE_URL}/user-data/${username}`);
+    const response = await fetch(`${BASE_URL}/user-data?username=${username}`);
 
     const data = await response.json();
 

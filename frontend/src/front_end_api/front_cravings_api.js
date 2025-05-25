@@ -16,7 +16,7 @@ export async function setCravings(username, cravings){
 }
 
 export async function getCravings(username){
-    const response = await fetch(`${BASE_URL}/cravings/${username}`);
+    const response = await fetch(`${BASE_URL}/cravings?username=${username}`);
 
     const data = await response.json();
 
