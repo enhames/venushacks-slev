@@ -6,6 +6,12 @@ user_routes = Blueprint('user_routes', __name__)
 @user_routes.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Missing JSON data'}), 400
+    required_fields = ['username', 'email', 'password', 'has_periods']
+    missing_fields = [field for field in required_fields if field not in data]
+    if missing_fields:
+        return jsonify({'error': f"Missing fields: {', '.join(missing_fields)}"}), 400
     new_user = User(
         username=data['username'],
         email=data['email'],
