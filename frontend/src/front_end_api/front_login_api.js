@@ -1,7 +1,7 @@
-import { BASE_URL } from "../config";
+
 
 export async function userLogin({ username, password}){
-    const response = await fetch(`${BASE_URL}/login`, {
+    const response = await fetch(`/login`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password}),
@@ -17,7 +17,7 @@ export async function userLogin({ username, password}){
 }
 
 export async function getEverything(username){
-    const response = await fetch(`${BASE_URL}/user-data/${username}`);
+    const response = await fetch(`/user-data/${username}`);
 
     const data = await response.json();
 

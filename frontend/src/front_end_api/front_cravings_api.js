@@ -1,7 +1,7 @@
-import { BASE_URL } from "../config";
+
 
 export async function setCravings(username, cravings){
-    const response = await fetch(`${BASE_URL}/cravings`, {
+    const response = await fetch(`/cravings`, {
         method: 'POST', 
         headers: {'Content-Type': 'application/json'}, 
         body: JSON.stringify({username, cravings}),
@@ -16,7 +16,7 @@ export async function setCravings(username, cravings){
 }
 
 export async function getCravings(username){
-    const response = await fetch(`${BASE_URL}/cravings/${username}`);
+    const response = await fetch(`/cravings/${username}`);
 
     const data = await response.json();
 

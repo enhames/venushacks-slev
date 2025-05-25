@@ -1,7 +1,7 @@
-import { BASE_URL } from "../config";
+
 
 export async function setPreferences(username, preferences){
-    const response = await fetch(`${BASE_URL}/preferences`, {
+    const response = await fetch(`/preferences`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username, preferences}),
@@ -16,7 +16,7 @@ export async function setPreferences(username, preferences){
 }
 
 export async function getPreferences(username){
-    const response = await fetch(`${BASE_URL}/preferences/${username}`);
+    const response = await fetch(`/preferences/${username}`);
 
     const data = await response.json();
 

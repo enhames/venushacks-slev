@@ -1,7 +1,7 @@
-import { BASE_URL } from "../config";
+
 
 export async function setSymptoms(username, symptoms){
-    const response = await fetch(`${BASE_URL}/symptoms`, {
+    const response = await fetch(`/symptoms`, {
         method: 'POST', 
         headers: {'Content-Type': 'application/json'}, 
         body: JSON.stringify({username, symptoms}),
@@ -16,7 +16,7 @@ export async function setSymptoms(username, symptoms){
 }
 
 export async function getSymptoms(username){
-    const response = await fetch(`${BASE_URL}/symptoms/${username}`);
+    const response = await fetch(`/symptoms/${username}`);
 
     const data = await response.json();
 
