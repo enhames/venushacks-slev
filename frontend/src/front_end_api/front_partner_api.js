@@ -1,5 +1,7 @@
+import { BASE_URL } from '../config';
+
 export async function updatePartner(username, partner_username){
-    const response = await fetch(`/partner`, {
+    const response = await fetch(`${BASE_URL}/partner`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'}, 
         body: JSON.stringify({username, partner_username}),
@@ -15,7 +17,7 @@ export async function updatePartner(username, partner_username){
 }
 
 export async function removePartner(username){
-    const response = await fetch(`/breakup`, {
+    const response = await fetch(`${BASE_URL}/breakup`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username}),

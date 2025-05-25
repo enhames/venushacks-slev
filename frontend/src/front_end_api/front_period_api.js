@@ -1,5 +1,7 @@
+import { BASE_URL } from '../config';
+
 export async function updatePeriod(username, period){
-    const response = await fetch(`/period`, {
+    const response = await fetch(`${BASE_URL}/period`, {
         method: 'POST',
         headers: {'Content-Type' : 'application/json'},
         body: JSON.stringify({username, period}),
@@ -15,7 +17,7 @@ export async function updatePeriod(username, period){
 }
 
 export async function getRecentPeriod(username){
-    const response = await fetch(`/last-period/${username}`);
+    const response = await fetch(`${BASE_URL}/last-period/${username}`);
 
     const data = await response.json();
 

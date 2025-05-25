@@ -1,7 +1,7 @@
-
+import { BASE_URL } from '../config';
 
 export async function send_mood({username, mood}){
-    const response = await fetch(`/mood`, {
+    const response = await fetch(`${BASE_URL}/mood`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username, mood}),
@@ -17,7 +17,7 @@ export async function send_mood({username, mood}){
 }
 
 export async function get_mood({username}){
-    const response = await fetch(`/mood/${username}`);
+    const response = await fetch(`${BASE_URL}/mood/${username}`);
     
     const data = await response.json();
 
