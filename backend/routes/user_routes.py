@@ -96,6 +96,7 @@ def set_partner(): # POST
         return jsonify({'error': 'One or both users not found'}), 404
     
     user.partner_username = partner_username
+    partner.partner_username = user.username
     db.session.commit()
 
     return jsonify({'message': 'Partner set successfully'}), 200
@@ -113,6 +114,22 @@ def get_partner(): # GET
     data = user.partner_username
     return jsonify(data)
 
+@user_routes.route('/breakup', methods=['POST'])
+def remove_partner():
+    data = request.get_json()
+    username = data.get('username')
+    partner_username = data.get('partner_username')
+
+    if not username or not partner_username:
+        return jsonify({'error': 'Both usernames required'}), 400
+    user = User.query.filter_by(username=username).first()
+    partner = User.query.filter_by(username=partner_username).first()
+    if not user or not partner:
+        return jsonify({'error': 'One or both users not found'}), 404
+    
+    user.partner_username = None
+    partner.partner_username = None
+    db.session.commit()
 
 @user_routes.route('/last-period', methods=['GET'])
 def get_last_period():
