@@ -191,7 +191,7 @@ def get_mood(): # GET
     if not user:
         return jsonify({'error': 'User not found'}), 404
     
-    mood = Mood.query.filter_by(user_username=username, date=dt.today).first()
+    mood = Mood.query.filter_by(user_username=username, date=dt.today()).first()
     return jsonify({'mood': mood.mood if mood else None}), 200
 
 def set_mood(): # POST
@@ -206,12 +206,53 @@ def set_mood(): # POST
     if not user:
         return jsonify({'error': 'Username is required'}), 400
     
-    prev_mood = Mood.query.filter_by(user_username=username, date=dt.today)
+    prev_mood = Mood.query.filter_by(user_username=username, date=dt.today())
     if prev_mood:
         prev_mood.mood = new_mood
     else:
-        new_mood = Mood(user_username=username, date=dt.today, mood=mood)
+        new_mood = Mood(user_username=username, date=dt.today(), mood=mood)
         db.session.add(new_mood)
+
+    db.session.commit()
+    return jsonify({'message': 'Mood saved'}), 200
+
+@user_routes.route('/cravings', methods = ['GET', 'POST'])
+def cravings():
+    if request.method == 'GET':
+        return get_cravings()
+    elif request.method == 'POST':
+        return set_cravings()
+    
+def get_cravings(): # GET
+    username = request.args.get('username')
+    if not username:
+        return jsonify({'error': 'Username is required'}), 400
+    
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    craving = Mood.query.filter_by(user_username=username, date=dt.today()).first()
+    return jsonify({'cravings': craving.cravings if craving else None}), 200
+
+def set_cravings(): # POST
+    data = request.get_json()
+    username = data.get('username')
+    craving = data.get('cravings')
+
+    if not username:
+        return jsonify({'error': 'Username is required'}), 400
+    
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'error': 'Username is required'}), 400
+    
+    prev_craving = Mood.query.filter_by(user_username=username, date=dt.today()).first()
+    if prev_craving:
+        prev_craving.cravings = craving
+    else:
+        new_craving = Mood(user_username=username, date=dt.today(), cravings=craving)
+        db.session.add(new_craving)
 
     db.session.commit()
     return jsonify({'message': 'Mood saved'}), 200

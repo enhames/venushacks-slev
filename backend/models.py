@@ -31,7 +31,10 @@ class Mood(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_username = db.Column(db.String(80), db.ForeignKey('user.username'), nullable=False)
     date = db.Column(db.Date, nullable=False)
-    mood = db.Column(db.String(50), nullable=False)
+    mood = db.Column(db.String(50))
+    cravings = db.Column(db.String(50))
+    symptoms = db.Column(db.String(50))
+
 class Preferences(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_username = db.Column(db.String(80), db.ForeignKey('user.username'), nullable=False)
