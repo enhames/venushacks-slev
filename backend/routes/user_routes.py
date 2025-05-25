@@ -45,28 +45,34 @@ def get_user_data():
     user = User.query.filter_by(username=username).first()
     if not user:
         return jsonify({'error': 'User not found'}), 404
-    today_mood = Mood.query.filter_by(user_id=user.id, date=dt.today().isoformat()).first()
+    if user.has_periods:
+        target = user
+    elif user.partner and user.partner.has_periods:
+        target = user.partner
+    else:
+        return jsonify({'message': 'No data available'}), 200
+    today_mood = Mood.query.filter_by(user_username=target.username, date=dt.today()).first()
     last_period = (
         Period.query
-        .filter_by(user_username=user.username, has_periods=True)
+        .filter_by(user_username=target.username, had_period=True)
         .order_by(Period.date.desc())
         .first()
     )
     data = {
-        'username': user.username,
-        'email': user.email,
+        'username': target.username,
+        'email': target.email,
         'preferences': {
-            'sweet': user.preference.sweet if user.preference else None,
-            'salty': user.preference.salty if user.preference else None,
-            'cold': user.preference.cold if user.preference else None,
-            'hot': user.preference.hot if user.preference else None,
-            'product': user.preference.product if user.preference else None,
-            'love_lang': user.preference.love_lang if user.preference else None,
-            'msg': user.preference.msg if user.preference else None
+            'sweet': target.preference.sweet if target.preference else None,
+            'salty': target.preference.salty if target.preference else None,
+            'cold': target.preference.cold if target.preference else None,
+            'hot': target.preference.hot if target.preference else None,
+            'product': target.preference.product if target.preference else None,
+            'love_lang': target.preference.love_lang if target.preference else None,
+            'msg': target.preference.msg if target.preference else None
         },
         'mood': today_mood.mood if today_mood else None,
         'last_period': last_period.date if last_period else None,
-        'partner': user.partner.username if user.partner else None
+        'partner': target.partner.username if target.partner else None
     }
     return jsonify(data), 200
 
@@ -84,7 +90,7 @@ def get_last_period():
     
     last_period = (
         Period.query
-        .filter_by(user_username=username, has_periods=True)
+        .filter_by(user_username=username, had_period=True)
         .order_by(Period.date.desc())
         .first()
     )
